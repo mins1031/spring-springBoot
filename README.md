@@ -52,10 +52,44 @@
    * 이미지같은 파일 자원을 로드 할 수 있는 포괄적인 방법을 제공해준다.
    * 리스너로 등록된 빈에게 이벤트 발생을 알려준다.
    * Lazy Loading이 아니라 컨텍스트 초기화 시점에 모든 싱글톤 빈을 미리 로드한다.
-## 3 Spring MVC 동작 원리
+# 3 Spring MVC 동작 원리
  1) 웹 어플리케이션이 실행되면 WAS에 의해 배포서술자 web.xml 파일이 로딩된다.
- 2) WAS는 web.xml 에 등록되어있는 ContextListner를 생성한다.
-  * 자동으로 스프링컨테이너(ApplicationContext) 초기화
-  * Servlet(아마 컨트롤러)을 사용하는 시점에 
- 3) 
-  
+ 2) WAS는 web.xml 에 등록되어있는 ContextLoaderListner를 생성한다.
+   * 자동으로 스프링컨테이너(ApplicationContext) 초기화
+   * Servlet(아마 컨트롤러)을 사용하는 시점에 ServletContext에 ApplicationContext를 등록
+   * Servlet이 종료되는 시점에 ApplicationContext삭제
+ 3) 위에서 생성된 ContextLoaderListner는 root-context.xml을 로딩한다
+   * root-context.xml은 어플리케이션의 bean을 정의하는 설정파일
+ 4) Root Spring Container 구동
+   * ContextLoaderListner가 root-context.xml의 설정 기반으로 root spring container를 기동
+ 5) 사용자 요청 받음
+   * 최초의 클라이언트 요청이면 DispatcherServlet 객체가 생성된다.
+ 6) 두번째 Spring Container 구동 (DispatcherServlet)
+   * 두번째 스프링 컨테이너에는 컨트롤러 bean들이 들어있고, 기존 root-container 클래스를 상속받는다
+   * DispatcherServlet객체는 servlet-context.xml 파일을 로딩하여 두번째 스프링 컨테이너를 구동한다
+   * servlet-context는 @Controller 어노테이션을 스캔하여 bean을 등록한다
+ 7) DispatcherServlet의 doService() 호출
+   7-1) doService()에는 사용자의 요청을 처리하기 위한 Handler와 Adapter을 찾아 호출하기 위해 doDispatch() 호출
+   7-2) doDispatch() 에서는 HandlerMapping 을 통해서 요청에 맞는 Controller 의 HandlerMethod를 찾고,
+   HandlerMethod를 호출할 수 있는 HandlerAdapter를 찾는다
+   7-3) HandlerAdapter가 HandlerMethod 호출
+ 8) Controller 요청 처리후 Controller는 view와 ModalAndView 리턴
+ 9) 리턴받은 viedw는 ViewResolver가 먼저 받아 해당 view가 존재하는지 검색
+ 10) DispatcherServlet은 ViewResolver로부터 JSP등 최종 표시 결과를 받아서 최종결과를 사용자에게 
+# 4 AOP기본
+ ## 4-1 AOP 용어
+  1. Advice
+   * 언제 공통관심 기능을 비즈니스 로직에 적용할지 정의
+   * 예를들어 '메서드를 호출 하기 전에 트랜잭션 시작' 기능을 적용한다는 것을 정의하고 있는것.
+  2. JoinPoint
+   * advice를 적용 가능한 지점을 의미
+   * 메소드 호출, 필드값 ㅕㄴ경등이 조인포인트에 해당한다.
+  3. Weaving : Advice를 비즈니스로직에 적용하는 행위
+  4. Aspect : 여러 객체에 공통으로 적용되는 기능. 트랜잭션, 보안등이 Aspect의 예
+ ## 4-2 Weaving 방식
+  1) 컴파일시에 Weaving하기
+  2) 클래스 로딩 시에 Weaving하기
+  3) 런타임시에 Weaving하기
+  > 1,2번의 경우 AspectJ라이브러리를 추가하여 구현할때 사용됨. 런타임시 위빙같은 경우는 Spring-Aop에서 사용하는 방식으로, 소스코드나 클래스 자체를 변경하는 것이 아니라 프록시 객체를 사용하여 모듈을 위빙하고 비즈니스 로직을 실행한다..?
+ ## 4-3 Spring-aop
+ > 
