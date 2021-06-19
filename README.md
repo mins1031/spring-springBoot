@@ -94,20 +94,52 @@
 # 5 스프링 부트 
  ## 스프링 부트의 특징
  * Embedded Tomcat(WAS)제공
-  * DispatcherServlet도 자동 설정된다.
-  * 즉 서블릿 컨테이너만들고 서블릿넣는 것이 자동이고 톰캣역시 내장톰갯으로 가지고 있다.
+   * DispatcherServlet도 자동 설정된다.
+   * 즉 서블릿 컨테이너만들고 서블릿넣는 것이 자동이고 톰캣역시 내장톰갯으로 가지고 있다.
  * 의존성 관리와 설정의 편리함
-  * 스프링에서 xml이나 자바로 설정해줘야했던 많은 것들을 스프링 부트는 Spring Web이라는 의존성패키지 하나에 거의 담겨있다.
+   * 스프링에서 xml이나 자바로 설정해줘야했던 많은 것들을 스프링 부트는 Spring Web이라는 의존성패키지 하나에 거의 담겨있다.
  * @SpringBootApplication 어노테이션으로 xml 설정대체
-  * @SpringBootApplication는 @ComponentScan 과 @EnableAutoConfiguration을 포함하고 있다.
-  * 스프링 부트는 bean을 @ComponentScan 후 @EnableAutoConfiguration이 동작한다
-  * @ComponentScan은 프로젝트 패키지 내의 어노테이션 정보를 통해 bean을 찾아 등록한다.
-  * @EnableAutoConfiguration은 클래스 패스내에 의존성 관련 자동설정. 의존성 주입 어노테이션이다.
+   * @SpringBootApplication는 @ComponentScan 과 @EnableAutoConfiguration을 포함하고 있다.
+   * 스프링 부트는 bean을 @ComponentScan 후 @EnableAutoConfiguration이 동작한다
+   * @ComponentScan은 프로젝트 패키지 내의 어노테이션 정보를 통해 bean을 찾아 등록한다.
+   * @EnableAutoConfiguration은 클래스 패스내에 의존성 관련 자동설정. 의존성 주입 어노테이션이다.
  * 독립실행 가능한 어플리케이션 지향 (JAR도 독립실행 가능)
-  * mvn package를 하면 실행 가능한 JAR 파일 하나가 생성됨.
-  * 스프링부트는 JAR파일들을 읽어 들이는 로더를 제공한다
-  * JAR 런처를 사용해서 main함수가 있는 jar 파일을 실행한다.
+   * mvn package를 하면 실행 가능한 JAR 파일 하나가 생성됨.
+   * 스프링부트는 JAR파일들을 읽어 들이는 로더를 제공한다
+   * JAR 런처를 사용해서 main함수가 있는 jar 파일을 실행한다.
+  
  스프링 부트의 장점 =>
  1. 의존성관리
  2. 설정의 간편화
  3. 임베디드 톰캣(독립실행 가능한 어플리케이션 )
+
+# JPA vs MyBatis
+ ## 6-1) 영속성 
+  * 데이터를 생성한 프로그램의 생명이 다하더라도 데이터는 남아있는 것.
+  * 우리는 데이터베이스를 통해 영속성을 부여한다
+  * Persistence Layer (Mapper or Repository)는 데이터에 영속성을 부여해 주는 계층이다.
+  * 여기서 JDBC없이 영속성을 갖게 도구가 Persistence Framework
+ ## 6-2) SQl Mapper 와 ORM
+ Persistence Framework 대표적으로 두가지가 있다
+  1) SQL Mapper
+    * SQL <- mapping -> object필드(DAO)
+    * 대표적인 예로 MyBatis가 있고 mapper.xml에 실제 SQL을 작성해 줘야 한다.
+    * 직접 SQL을 많이 조작해야 하는 쿼리가 있는 경우에 유용하다
+    * XML파일에 쿼리를 작성하고 @Autowired하는 방식이다. 주로 mapper인터페이스와 같이 사용.
+  2) ORM (Object-Relation Mapping)
+    * 객체와 RDB 테이블의 데이터를 자동으로 매핑해 주는 도구
+    * SQL을 자동으로 생성한다.
+    * SQL 쿼리 대신 직관적인 method로 트랜잭션 할 수 있다.
+    2-1) JPA 그리고 Hibernate
+      * JPA는 자바 어플리케이션에서 데이터베이스를 사용하는 방식을 정의한 인터페이스이다.
+      * Hibernate는 JPA를 구현한 구현체이다.
+      * 주로 Spring Data JPA와 함께 사용한다.
+  3) ORM의 장점과 단점
+    * 장점 :
+      * 객체지향적인 코드로 직관적이고, 비즈니스 로직에 더 집중할수 있다.
+      * DBMS에 종속적이지 않다.
+      * 재사용 및 유지보수의 편리성이 증가한다.
+      * JPA의 경우 여러 방법이 있지만 QueryDSL과 함께 사용하는 것이 최적의 효과를 볼 수 있다
+     * 단점 :
+      * 자주 사용되는 대형 쿼리는 별도의 튜닝이 필요한 경우가 있다.
+      * 최적화된 SQL쿼리를 사용할 때는 MyBatis가 나은점이 있다.
