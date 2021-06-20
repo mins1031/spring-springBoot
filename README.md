@@ -113,7 +113,7 @@
  2. 설정의 간편화
  3. 임베디드 톰캣(독립실행 가능한 어플리케이션 )
 
-# JPA vs MyBatis
+# 6. JPA vs MyBatis
  ## 6-1) 영속성 
   * 데이터를 생성한 프로그램의 생명이 다하더라도 데이터는 남아있는 것.
   * 우리는 데이터베이스를 통해 영속성을 부여한다
@@ -143,3 +143,24 @@
      * 단점 :
       * 자주 사용되는 대형 쿼리는 별도의 튜닝이 필요한 경우가 있다.
       * 최적화된 SQL쿼리를 사용할 때는 MyBatis가 나은점이 있다.
+ # 7. Spring Security
+ 
+ > Spring security는 어플리케이션 보안(인증과 권한, 인가등)을 담당하는 스프링 하위 프레임워크 이다. Spring security는 인증과 권한에 대한 부분을 firterChain의 흐름에 따라 처리하고 있다. 필터는 Dispatcher Servlet으로 가기 전에 적용됨로 가장 먼저 요청을 받지만 인터셉터는 Dispatcher와 Controller사이에 위치한다는 점에서 적용시기의 차이가 있다.
+ 
+ * 인증(Authorization) : 해당 사용자가 본인이 맞는지 확인하는 절차 
+ * 인가(Authentication) : 인증된 사용자가 요청한 자원에 접근 가능한지를 결정하는 절차
+ => Spring security는 기본적으로 인증절차를 거친 후에 인가 절차를 진행하게 되며 인가 과정에서 해당 리소스에대한 접근 권한이 있는지 확인을 하게 된다. Spring security에서는 이러한 인증과 인가를 위해 Principal(=접근주체 : 보호받는 리소스에 접근하는 대상)을 아이디로, Credential(=비밀번호: 리소스에 접근하는 대상의 비밀번호)을 비밀번호로 사용하는 Credential기반의 인증 방식을 사용한다.
+ 
+  ## Spring Security의 동작방식
+  <img src = "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FcAp74D%2FbtqAWyBRZsE%2FLk6EL0R680ykd45G6A5rK1%2Fimg.png" />
+  
+   1) 사용자가 로그인을 요청
+   2) 필터체인중 AuthenticationFilter가 이 요청을 가로채고 이때 가로챈 정보를 통해 UsernamePasswordAuthenticationToken 이라는 '인증용 토큰객체'를 생성한다
+   3) AuthenticationManager의 구현체인 ProviderManager에게 2)의 인증용 토큰객체를 전달한다.
+   4) 그다음 다시 AuthenticationProvider에게 인증용 토큰객체가 전달된다
+   5) 실제 db에서 사용자 인증 정보를 가져오는 UserDetailService(=PrincipalDetailsService)에 사용자정보(id)를 넘겨준다.
+   6) 넘겨받은 id를 통해 DB에서 찾은 사용자 정보인 UserDetails객체를 생성한다
+   7) AuthenticationProvider는 UserDetails를 넘겨받고 사용자 정보를 비교한다.
+   8) 비교하여 인증이 완료되면 권한등의 사용자 정보를 담은 Authentication 객체를 반환한다
+   9) 다시 최초의 AuthenticationFilter에 Authentication 객체가 반환된다
+   10) SecurityContextHolder에 Authentication 객체를 저장한다.
