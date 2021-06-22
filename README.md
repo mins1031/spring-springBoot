@@ -29,6 +29,7 @@
 # 2 Spring DI,IOC
  ## 2-1) IOC(제어의 역전)
  > 프로그램의 흐름을 직접 제어하는것이 아니라 외부에서 관리하는 것을 **제어의 역전(IoC)** 이라고 한다.
+
  * 기존엔 클라이언트 객체가 스스로 필요한 서버 구현 객체를 생성,연결,실행 했다. 한마디로 구현 객체가 프고르매의 제어 흐름을 스스로 제어했다.
  * 반면 spring 컨테이너를 통해 프로그램에 대한 제어 흐름에 대한 권한은 모두 컨테이너가 가지고있다.
  * 이렇게 구현 객체는 자기 자신의 로직만을 실행하고 필요한 요소는 스프링이 알아서 주입해준다.
@@ -53,6 +54,8 @@
    * 리스너로 등록된 빈에게 이벤트 발생을 알려준다.
    * Lazy Loading이 아니라 컨텍스트 초기화 시점에 모든 싱글톤 빈을 미리 로드한다.
 # 3 Spring MVC 동작 원리
+<img src = "https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile21.uf.tistory.com%2Fimage%2F992B234C5C807FD1146507" />
+
  1) 웹 어플리케이션이 실행되면 WAS에 의해 배포서술자 web.xml 파일이 로딩된다.
  2) WAS는 web.xml 에 등록되어있는 ContextLoaderListner를 생성한다.
    * 자동으로 스프링컨테이너(ApplicationContext) 초기화
