@@ -187,6 +187,7 @@
    <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile21.uf.tistory.com%2Fimage%2F999B12465BBC992C202A89"/>
    
    <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FU37jP%2FbtqBs1h7mS3%2F6kyUiTE6y1SuRfpLrzkn7K%2Fimg.png"/>
+   
    * clean : 빌드시 생성되었던 파일들을 삭제하는 단계
    * Validate : 프로젝트가 올바른지 확인하고 필요한 모든 정보를 사용할 수 있는지 확인하는 단계
    * Compile : 프로젝트의 소스코드를 컴파일하는 단계
@@ -198,16 +199,17 @@
    * Deploy : 만들어진 package를 원격 저장소에 release하는 단계
 
    * 최종 빌드 순서는 complie -> test -> package이다.
-    1) compile : src/main/java 디렉토리 아래의 모든 소스코드가 컴파일 된다.
-    2) test : src/test/java, src/test/resources 테스트 자원 복사 및 테스트 소스 코드 컴파일 된다.   
-    3) packageing : 컴파일과 테스트가 완료된후 jar,war 등의 형태로 압축하는 작업
+     1) compile : src/main/java 디렉토리 아래의 모든 소스코드가 컴파일 된다.
+     2) test : src/test/java, src/test/resources 테스트 자원 복사 및 테스트 소스 코드 컴파일 된다.   
+     3) packageing : 컴파일과 테스트가 완료된후 jar,war 등의 형태로 압축하는 작업
   * 4-2) Phase(단계)
-   > 빌드 라이프사이클의 각각의 단계를 phase라고 한다. phase는 의존관계를 가지고 있어 해당 phase가 수행되려면 이전단계 phase가 '모두'수행 되어야 한다. 즉 이전단계의 phase들이 성공적으로 수행되었을때 현재 phase가 실행된다는 것이다.
+    > 빌드 라이프사이클의 각각의 단계를 phase라고 한다. phase는 의존관계를 가지고 있어 해당 phase가 수행되려면 이전단계 phase가 '모두'수행 되어야 한다. 즉 이전단계의 phase들이 성공적으로 수행되었을때 현재 phase가 실행된다는 것이다.
   * 4-3) goal
-   * 특정 작업, 최소한의 실행단위이다.
-   * 하나의 플러그인에서는 여러 작업을 수행할 수 있도록 지원하며, 플러그인에서 실행 할 수 있는 각각의 기능을 goal이라고 한다.
-   * **각각의 phase에 연계된 goal을 실행하는 과정을 build라고 한다.**
-   * 플러그인의 goal을 실행하는 방법은 '-mvn plugin:goal' 로 실행한다.
+    * 특정 작업, 최소한의 실행단위이다.
+    * 하나의 플러그인에서는 여러 작업을 수행할 수 있도록 지원하며, 플러그인에서 실행 할 수 있는 각각의 기능을 goal이라고 한다.
+    * **각각의 phase에 연계된 goal을 실행하는 과정을 build라고 한다.**
+    * 플러그인의 goal을 실행하는 방법은 '-mvn plugin:goal' 로 실행한다.
+ 
   ### 5. 메이븐 설정파일
   1) setting.xml 
    * 메이븐 빌드 툴과 관련한 설정파일
