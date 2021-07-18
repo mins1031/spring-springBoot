@@ -167,3 +167,116 @@
    8) 비교하여 인증이 완료되면 권한등의 사용자 정보를 담은 Authentication 객체를 반환한다
    9) 다시 최초의 AuthenticationFilter에 Authentication 객체가 반환된다
    10) SecurityContextHolder에 Authentication 객체를 저장한다.
+
+ ## 메이븐
+  https://goddaehee.tistory.com/199 참고하여 공부후 내용 서술하며 복기했다.
+  ### 1. 빌드란
+  > 소스코드 파일을 컴퓨터에서 실행할 수 있는 독립 소프트웨어 가공물로 변환하는 과정이나 그에 대한 결과물이다. 쉽게말해 작성한 소스코드(java)와 프로젝트에서 쓰인 각각의 파일 및 자원등(.jpg,jar.yml등)을 jvm이나 was가 인식할 수 있는 구조로 패키징 하는 과정 및 결과물이라고 할 수 있다.
+
+  ### 2. 빌드도구
+  * 빌드도구란 프로젝트 생성,테스트,배포등의 작업을 위한 전용 프로그램
+  * 빠른기간동안 계속해서 늘어나는 라이브러리추가, 프로젝트 진행하며 라이브러리 버전동기화의 어려움을 해소하고 자 등장하였다.
+  ### 3. 메이븐 정의 및 특징
+  * Maven은 자바용 프로젝트 관리도구로 Apache ant의 대안으로 만들어졌다
+  * Maven은 프로젝트의 전체적인 라이프 사이클을 관리하는 도구이며, 많은 편리함과 이점으로 널리 사용되고 있다
+  * Maven은 필요한 라이브러리를 특정문서(pom.xml)에 정의해놓으면 정의된 라이브러리 뿐만아니라 해당 라이브러리가 동작하는데 필요한 다른 라이브러리도 관리하여 네트워크를 통해 자동으로 다운받아준다.
+  * 간단한 설정을 통한 배포관리가 가능하다.
+  ### 4. 메이븐 라이프사이클
+  * 4-1) 라이프 사이클 
+   * Maven은 프레임워크기 때문에 동작 방식이 정해져 있고 미리 정의하고 있는 빌드 순서가 있다. 이를 '라이프 사이클'이라고 한다
+   <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=http%3A%2F%2Fcfile21.uf.tistory.com%2Fimage%2F999B12465BBC992C202A89"/>
+   
+   <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FU37jP%2FbtqBs1h7mS3%2F6kyUiTE6y1SuRfpLrzkn7K%2Fimg.png"/>
+   * clean : 빌드시 생성되었던 파일들을 삭제하는 단계
+   * Validate : 프로젝트가 올바른지 확인하고 필요한 모든 정보를 사용할 수 있는지 확인하는 단계
+   * Compile : 프로젝트의 소스코드를 컴파일하는 단계
+   * Test : 단위 테스트를 수행하는 단계
+   * package : 실제 컴파일된 소스코드와 리소스들을 jar,war등의 파일로 배포를 위한 패키지로 만드는 단계
+   * Verify : 통합 테스트 결과에 대한 검사를 실행하여 품질 기준?을 충족하는지 확인하는 단계
+   * install : 패키지를 로컬 저장소에 설치하는 단계
+   * site : 프로젝트 문서와 사이트 작성,생성하는 단계
+   * Deploy : 만들어진 package를 원격 저장소에 release하는 단계
+
+   * 최종 빌드 순서는 complie -> test -> package이다.
+    1) compile : src/main/java 디렉토리 아래의 모든 소스코드가 컴파일 된다.
+    2) test : src/test/java, src/test/resources 테스트 자원 복사 및 테스트 소스 코드 컴파일 된다.   
+    3) packageing : 컴파일과 테스트가 완료된후 jar,war 등의 형태로 압축하는 작업
+  * 4-2) Phase(단계)
+   > 빌드 라이프사이클의 각각의 단계를 phase라고 한다. phase는 의존관계를 가지고 있어 해당 phase가 수행되려면 이전단계 phase가 '모두'수행 되어야 한다. 즉 이전단계의 phase들이 성공적으로 수행되었을때 현재 phase가 실행된다는 것이다.
+  * 4-3) goal
+   * 특정 작업, 최소한의 실행단위이다.
+   * 하나의 플러그인에서는 여러 작업을 수행할 수 있도록 지원하며, 플러그인에서 실행 할 수 있는 각각의 기능을 goal이라고 한다.
+   * **각각의 phase에 연계된 goal을 실행하는 과정을 build라고 한다.**
+   * 플러그인의 goal을 실행하는 방법은 '-mvn plugin:goal' 로 실행한다.
+  ### 5. 메이븐 설정파일
+  1) setting.xml 
+   * 메이븐 빌드 툴과 관련한 설정파일
+   * MAVEN_HOME/conf 디렉토리에 위치 (메이븐 설치시 기본 제공)
+   * 메이븐 자체 설정값을 바꾸는 일은 잘없..다?
+  2) POM.xml
+   * pom.xml은 메이븐을 이용하는 프로젝트의 root에 존재하는 xml파일이다.
+   * 메이븐 기능을 이용하기 위해 pom.xml이 사용됨. 
+   * 파일은 프로젝트마다 1개이며 프로젝트의 모든 설정,의존성등을 알 수 있다.
+  ```
+  <?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.min</groupId>
+    <artifactId>dockerbuild</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>dockerbuild</name>
+    <description>Demo project for Spring Boot</description>
+    <url>https://github.com/mins1031/spring-springBoot</url>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
+  ```
+ #### pom.xml 정보
+ * modelVersion : POM model의 버전. pom.xml 파일형식의 버전이라고 보면된다
+ * parent : 프로젝트의 계층 정보
+ * groupId : 프로젝트를 생성하는 조직의 고유 아이디를 결정한다. 일반적으로 도메인 이름 거꾸로 적는다.
+ * artifactId : 프로젝트 빌드시 파일 대표 이름이다. groupId내에서 유일해야 한다.
+ * version : 프로젝트의 현재 버전, 프로젝트 개발 중일 떄는 SNAPSHOT을 접미사로 사용
+ * packaging : 패키징 유형(ajr,war,ear등)
+ * name : 프로젝트, 프로젝트 이름
+ * discription : 프로젝트에 대한 간략한 설명
+ * url : 프로젝트에대한 참고 
+ * properties : 버전 관리시 용이하다.
+ * dependencies : dependencies 태그 안에는 프로젝트와 의존 관계에 있는 라이브러리들을 관리 한다.  
+ * build : 빌드에 사용할 플러그인 목록이다.
