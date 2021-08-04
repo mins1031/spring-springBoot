@@ -345,4 +345,53 @@
  * **스프링 컨테이너 덕에 요청 올떄마다 객체를 생성하는 것이 아닌 이미 만들어지 객체를 공유해서 효율적으로 재사용 할 수 있다.** 
  
  > 싱글톤 방식의 주의점
+ * 객체 인스턴스를 하나만 생성해서 공유하는 싱글톤 방식은 여러 클라이언트가 하나의 같은 객체 인스턴스를 공유하기 때문에 싱글톤 객체는 **상태를 유지하게(stateful)** 설계하면 안된다.
+ * 무상태(stateless)로 설계해야 한다
+   * 특정 클라이언트에 의존적인 필드가 있으면 안된다
+   * 특정 클라이언트가 값을 변경할 수 있는 필드가 있으면 안된다.
+   * 가급적 읽기만 가능해야 한다.
+   * 필드 대신에 자바에서 공유되지 않는 지역변수,파라미터 등을 사용해야 한다
+ * 스프링 빈의 필드에 공유값을 설정하면 큰 장애를 맞을수 있다
+ ```
+ public class StatefulService {
+   private int price; //상태를 유지하는 필드
+   
+   public void order(String name, int price) {
+     System.out.println("name = " + name + " price = " + price);
+     this.price = price; //여기가 문제!
+   }
+   public int getPrice() {
+     return price;
+   }
+}
+...테스트 코드
+
+StatefulService statefulService1 = ac.getBean("statefulService",StatefulService.class);
+StatefulService statefulService2 = ac.getBean("statefulService",StatefulService.class);
  
+ //ThreadA: A사용자 10000원 주문
+ statefulService1.order("userA", 10000);
+ 
+ //ThreadB: B사용자 20000원 주문
+ statefulService2.order("userB", 20000);
+ 
+ //ThreadA: 사용자A 주문 금액 조회
+ int price = statefulService1.getPrice();
+
+ //ThreadA: 사용자A는 10000원을 기대했지만, 기대와 다르게 20000원 출력
+ System.out.println("price = " + price);
+ 
+ Assertions.assertThat(statefulService1.getPrice()).isEqualTo(20000);
+ }
+ ```
+ * 결국 B사용자의 스레드인 B로 인해 값이 바뀌어서 A의 주문 금액역시 20000원이 되어버린것을 볼 수 있다.
+ * 이렇게 되면..... 꼭 스프링 빈은 값을 무상태, 상태유지 필드가 있어도 값을 조작하지 못하게 해야한다.
+ * 다만 스프링 컨테이너의 빈들사이에서 한 빈 객체를 여러번 호출하는 경우가 있을수도 있다. 그러면 스프링 컨테이너는 싱글톤을 어떻게 유지할 수 있을까
+ * @Configuration 어노테이션이 있는 자바 설정 클래스가 빈 설정 파일로 등록되 해당 설정클래스는 물론 내부 @Bean이 붙은 메서드들의 메서드명이 빈 이름, 리턴값이 빈 객체로 설정된다.
+ *  그런데 빈으로 등록된 설정 클래스의 정보릘 출력해보면 CGLIB라는 이름이 붙은 이상한 이름이 나오게 된다.
+ *  이것은 스프링이 CGLIB라는 바이트 코드 조작 라이브러리를 이용해 설정 클래스를 상속받은 임의의 다른 더미 클래스를 만들고 그 다른 클래스를 스프링 빈으로 등록한 것이다.(내부의 @Bean들은 리턴값 자체가 등록된다.)그리고 이 임의의 클래스가 싱글톤이 보장되게 해준다.
+   * 아마 @Bean이 붙은 메서드마다 스프링 컨테이너에 빈으로 존재하면 해당하는 빈 객체 리턴하고, 빈이 없으면 생성해서 빈으로 등록후 리턴값을 반환하는 코드가 동적으로 만들어지는듯 하다.
+   * 이를 통해 궁극적 싱글톤이 보장되는 것이다.  
+
+
+
