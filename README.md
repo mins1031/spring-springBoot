@@ -42,7 +42,7 @@
  * 의존관계 주입을 사용하면 정적인 클래스 의존관계를 변경하지 않고, 동적인 객체 인스턴스 의존관계를 쉽
 게 변경할 수 있다
  ## 2-3) 스프링 컨테이너란?
- > 객체를 생성하고 관리하면서 의존관계를 연결해 주는 것, DI컨테이너= 스프링 컨테이너 라고 한다.
+ > 객체를 생성하고 관리하면서 의존관계를 연결해 주는 것, DI컨테이너 = 스프링 컨테이너 라고 한다.
  ## 2-4) 스프링 컨테이너의 종류
  * BeanFactory
  > DI의 기본사항을 제공하는 가장 단순한 컨테이너이다.BeanFactory 는 빈을 생성하고 분배하는 책임을 지는 클래스 빈 자체가 필요하게 되기 전까지는 인스턴스화를 하지 않는다 (lazy loading)
@@ -282,3 +282,67 @@
  * properties : 버전 관리시 용이하다.
  * dependencies : dependencies 태그 안에는 프로젝트와 의존 관계에 있는 라이브러리들을 관리 한다.  
  * build : 빌드에 사용할 플러그인 목록이다.
+
+## 8. spring, spring boot
+ #### 스프링 컨테이너 생성과정
+ ```
+ ApplicationContext applicationContext = new AnnotationConfigApplicationContext(AppConfig.class)
+ ```
+ * ApplicationContext를 스프링 컨테이너라고 하고 인터페이스이다
+ * AnnotationConfigApplicationContext는 ApplicationContext의 구현체중 하나이다(구현체가 굉장히 많다)
+ * 스프링 컨테이너는 XML기반으로 만들수도 있고 어노테이션 기반 자바 설정 클래스로 만들수 있다. 위의 AnnotationConfigApplicationContext는 자바 설정 클래스를 기반으로한 구현체이다. xml로 하려면 다른 구현체를 사용한다고 한다.
+ * 위의 ApplicationContext가 AppConfig설정 정보를 통해 생성시의 과정을 조금더 간략화하면
+   1) AppConfig.class의 설정을 기반으로 한 스프링 컨테이너 applicationContext가 생성 
+   2) AppConfig.class의 빈설정을 기반으로 컨테이너에 스프링 빈 객체를 등록한다.
+   3) 설정 정보를 통해 의존관계주입을 준비후 의존관계를 주입해준다.
+   4) 스프링 컨테이너에 빈 객체로 등록된 MemberSerice를 주입 받게 되면 MemberSerice가 의존하고 있는 MemberRepository가 주입된 MemberSerice가 리턴되어 주입된다. 
+ 
+ * 그런데 ApplicationContext는 어떻게 xml이나 자바 또는 다른 설정 형식을 지원할 수 있을까?
+ * 그것은 BeanDefinition이라는 인터페이스를 통해 가능하다. 스프링 컨테이너는 xml형식인지,자바 형식인지 몰라도 되고 오직 BeanDefinition만 알면된다. 
+ * BeanDefinition을 빈 설정 메타정보라고 한다.
+ * AnnotationConfigApplicationContext는 AnnotatedBeanDefinitionReader를 통해 AppConfig를 읽고 BeanDefinaition을 ApplicationContext로 리턴해준다.
+ * Xml은 위와 같은 방식으로 진행된다.
+ * **스프링이 다양한 형태의 설정정보를 BeanDefinaition으로 추상화해서 사용하는것 정도만 이해하고 나중에 BeanDefinaition 관련 코드를 보았을때 이런 매커니즘을 떠올리면 된다. ** 
+ 
+ #### 싱글톤
+ > 웹 어플리케이션과 싱글톤
+ 스프링은 멀티쓰레드를 지원하고 하나의 요청에 하나의 스레드를 할당해준다. 만약 우리의 요청을 통해 내부동작중 주입받는 빈 객체들이 스프링컨테이너에서 새로 생성되어 주입된다면?(만약 MemberService를 주입 받아야 한다면 MemberService내의 MemberRepository도 빈이기에 같이 주입되 MemberService를 주입 받는다)우리의 요청 하나에 객체가 2개가 생성되어 동작한다. 다만 이러한 요청이 초당 1000개,1만개 늘어나게 되면 굉장히 비효율적으로 메모리를 사용하며 어플리케이션이 동작한다.
+ * 이러한 현상을 해결한 것이 싱글톤 패턴으로 컨테이너를 구성하는 것이다. => 객체 1번만 생성후 참조값 공유
+ > 싱글톤 패턴이란
+ 
+ ```
+ public class SingletonService {
+    
+    // 1.static 영역에 객체 instance를 하나 생성해 메모리에 올리고 해당 참조값을 반환하게 한다
+    private static final SingletonService instance = new SingletonService();
+    
+    //2. 이 객체 인스턴스가 필요하다면 오직 getInstance() 메서드를 통해서만 조회할 수 있고 이 메서드는 같은 인스턴스를 참조하고 있기 때문에 항상 같은 인스턴스를 리턴한다.
+    public static SingletonService getInstance(){
+        return instance;
+    }
+
+    //3. private생성자를 통해 새로운 SingletonService객체를 생성하지 못하게해 하나의 객체만 생성되게 한다.
+    private SingletonService() {
+    }
+ }
+ ```
+ * 위 처럼 코드 작성후 다른 참조변수 `SingletonService s1 = SingletonService.getInstance()`, ` SingletonService s2 = SingletonService.getInstance()` s1,s2의 참조값이 같다는 것을 확인할 수 있다.
+ * 이처럼 요청마다 객체를 생성할 필요 없이 하나의 객체만 생성해 공유하는 단순하고 효율적인 방식이지만 많은 단점이 존재한다
+   1) 싱글톤 패턴 구현을 위해 들어가는 코드가 많아진다. (위의 코드 처럼) 
+   2) 의존관계상 클라이언트가 구체 클래스에 의존한다. -> DIP위반
+   3) 클라이언트가 구체 클래스에 의존해 OCP 원칙 위반가능성이 높다.
+   4) 테스트 하기가 어렵다
+   5) 내부 속성을 변경하거나 초기화하기 어렵다.
+   6) private 생성자로 자식클래스를 만들기 어렵다
+   7) 결론적으로 유연성이 떨어진다. 안티패턴으로 불리기도 한다.
+ 
+ > 싱글톤 컨테이너
+ * 스프링 컨테이너는 싱클톤 패턴을 적용하지 않아도 객체 인스턴스를 싱글톤으로 관리한다.
+ * 스프링 컨테이너는 싱글톤 컨테이너 역할을 한다. 이렇게 싱글톤 객체를 생성하고 관리하는 기능을 싱글톤 레지스트리라고 한다.
+ * 스프링 컨테이너의 이런 기능 덕에 싱글톤 패턴의 단점들을 해결하며 객체를 싱글톤으로 유지할 수 있다
+   * 싱글톤 패턴을 위한 지저분한 코드가 클래스에 들어가지 않아도 된다.
+   * DIP,OCP,테스트, private 생성자로 부터 자유롭게 싱글톤을 사용할 수 있다. 
+ * **스프링 컨테이너 덕에 요청 올떄마다 객체를 생성하는 것이 아닌 이미 만들어지 객체를 공유해서 효율적으로 재사용 할 수 있다.** 
+ 
+ > 싱글톤 방식의 주의점
+ 
