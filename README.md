@@ -451,4 +451,14 @@ StatefulService statefulService2 = ac.getBean("statefulService",StatefulService.
      * 유일한 단점은 외부 라이브러리엔 적용할수 없다는 점이다. 외부 라이브러리 초기화,종료시 @Bean기능을 이용하는게 좋다.     
 
 
-
+## 9. 어노테이션
+### 주요 어노테이션
+1) `@Configuration` : 해당 어노테이션이 있는 클래스는 자바 빈설정을 담당하는 클래스가 된다. 해당 클래스 내의 `@Bean` 어노테이션이 붙은 메서드를 선언하면 해당 메서드를 통해 스프링 빈을 정의하고(주로 메서드 리턴값) 생명주기를 설정하게 된다.
+2) `@ComponentScan` : @ComponentScan은 위의 @Configuration 설정 파일에 같이 적용해 사용해주면 해당 클래스는 자바 빈설정 클래스이고 이 @ComponentScan의 속성값 범위안에서 `@Component` 혹은 `@Component`를 포함한 다른 어노테이션을 모두 빈으로 만들어준다. 선호되는 방식은 @ComponentScan을 최상의 클래스에 적용해 사용하면 해당 클래스 밑의 클래스들에서 @Component 를 찾아 빈 설정하기 때문에 최상위 클래스에 적용하는것이 편하다.(Spring boot역시 이 방법으로 사용되고 있다.)
+3) `@Component` : 빈으로 적용되는 클래스를 의미하는 어노테이션으로 @ComponentScan의 스캔 대상이다.@Service,@Controller,@RestController,@Repository등등의 어노테이션에도 포함되어있다
+4) `@Autowired` : 해당 어노테이션은 원하는 스프링 빈을 주입해주는 어노테이션이다. 해당 클래스의 타입에 맞는 빈을 가져와 주입해 준다. 만약 타입의 빈이 1개 라면 해당 빈을 주입하지만 2개 이상이라면 `@Primary`나  `@Qualifier`를 활용해 추가 설정을 해줘야 한다.
+5) `@Value` : 생성자, 필드,메서드등에 스프링에서 설정한 값을 주입할 수 있다. 주로 application.properties or yml 파일에 명시된 값이 필요할때 사용한다
+6) `@Scope` : 빈의 생명주기를 설정한다. 기본값을 싱글톤이고 프로퍼티나 request,session,globalSession 같은 내용으로 설정할 수 있다.
+7) `@SpringBootApplication` : 스프링 부트는 기본적으로 이 어노테이션을 기준으로 동작하도록 되어있다 스프링에서 필수적인 초기화를 담당하는 `@EnableAutoConfiguration`,`@ComponentScan`,`@Configuration ` 어노테이션이 포함되어 있다. 이클래스를 기준으로 빈 스캔을 하게 되며 해당 클래스 밑으로 개발을 해야한다.
+8) `@EnableAutoConfiguration` : 스프링 부트의 핵심 어노테이션으로 여태까지 Springboot없이 XML이나 자바설정에서 필수적으로 스프링에 세팅하는 왠만한 것들을 자동 설정하여 돌아가게 하는 어노테이션이다.
+9) 
