@@ -470,3 +470,16 @@ StatefulService statefulService2 = ac.getBean("statefulService",StatefulService.
 11) `@RequsetParam` : @RequsetParam은 `1개의 HTTP 요청 파라미터를 받기 위해서` 사용한다. @RequsetParam은 필수 여부가 true이기 떄문에 기본적으로 반드시 해당 파라미터가 전송되어야한다.해당 파라미터가 전송되지 않으면 400 에러가 발생한다. `@RequsetParam(value = "뷰 필드값") String 파라미터 이름` 
 12) `@RequestBody` : @RequestBody는 클라이언트가 전송하는 Json형태의 HTTP BODY의 내용을 자바 객체로 변환시켜주는 역할을 한다. @RequestBody와 @ResponseBody는 각각 HTTP 요청의 바디의 내용을 자바 객체로 변환하고 자바 객체를 HTTP 응답의 바디로 변환한다. 스프링은 @RequestBody나 @PathVariable 어노테이션을 사용해 요청의 파라미터 값을 받아올떄 HandlerMethodArgumentResolver를 사용해 값을 받아온다. 이 **HandlerMethodArgumentResolver는 컨트롤러 메서드에서 특정 조건에 맞는 파라미터가 있을때 원하는 값을 바인딩 해주는 인터페이스**인데 따로 커스텀하여 사용해야 하는 경우도 있다. 그렇다면 Json데이터가 @RequestBody로 받을시  HandlerMethodArgumentResolver는 어떻게 동작할까?  우선 HandlerMethodArgumentResolver의 구현체중 HandlerMethodArgumentResolverComposite 클래스에서 resolveArgment()(바인딩할 객체를 만들어 리턴하는 메서드) 메서드를 호출하고 내부에서 getArgumentResolver() 메서드를 호출하여 HandlerMethodArgumentResolver를 구현한 모든 클래스를 순회하여 supportsParameter()(파라미터 타입이 바인딩 지원되는 타입인경우 True리턴하는 메서드) 메서드를 호출해 알맞는 객체인   RequestResponseBodyMethodProcessor 인스턴스를 반환한다. RequestResponseBodyMethodProcessor 인스턴스의 resolverArgument()메서드를 호출해 @RequsetBody의 파라미터를 확인해 body를 읽어 들일 컨버터를 지정해 주는데 json타입이기에 MappingJackson2HttpMessageConverter 클래스가 읽어들이게 설정해준다.(MappingJackson2HttpMessageConverter는 application/json 요청이 들어올때 동작하도록 설계되어있다.) 이후 jackson의 ObjectMapper를 통해 요청바디의 json 데이터를 객체 필드와 바인딩해준다.이때 위에서 컨버터를 지정시 기본적으로 스프링은 HttpMessageConverter 인터페이스의 구현체들로 응답해주는데 HttpMessageConverter란 HTTP 바디 내용을 변환하거나 변환될때 사용된다. 문자열이나 정수 처리엔 StringHttpMessageConverter, 객체로 역,직렬화 과정엔 위의 MappingJackson2HttpMessageConverter를 사용하게 된다.
 13) `@PathVariable` : @PathVariable 파라미터를 사용하면 해당 메서드 uri의 일부를 파라미터로 전달할 수 있다. API구성시 많이 사용된다. 위의 @RequestBody와 같이 HandlerMethodArgumentResolver를 통해 컨버터를 할당받아 사용 되게 된다.
+
+
+## 테스트
+1 : @ActiveProfiles : 해당 어노테이션은 테스트에서 사용할 설정을 지정해주는 어노테이션이다.
+스프링을 사용하다 보면 같은코드라도 환경,상황마다 다른 설정을 적용해줘야 하는 경우가 있는데
+이때 @Profile,@ActiveProfiles 어노테이션을 사용한다. 빈등록시 메서드위에 
+@Profiles('설정명') 이렇게 어노테이션을 설정마다 적용하고 설정대로 사용할 수 있다
+@ActiveProfiles는 테스트시 어떤 환경을 사용할지 정해주는 어노테이션이라고 한다
+2 : @AutoConfigureMockMvc
+디폴트 설정이 서버에서 실행되는게 아닌 테스트환경에서 실행되고 엔드포인트가 있는 테스트를
+진행시엔 MockMvc을 활용해야한다. MockMvc는 가상의 클라이언트로 어플리케이션에 요청을 날리는
+역할을한다. MockMvc를 생성하는 방법에는 여러가지가 있지만 테스트 클래스에 
+@AutoConfigureMockMvc 어노테이션을 지정하고 주입받는것이 간단한 방법이라고 한다.
