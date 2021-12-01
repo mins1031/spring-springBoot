@@ -473,13 +473,14 @@ StatefulService statefulService2 = ac.getBean("statefulService",StatefulService.
 
 
 ## 테스트
-1 : @ActiveProfiles : 해당 어노테이션은 테스트에서 사용할 설정을 지정해주는 어노테이션이다.
+1) @ActiveProfiles : 해당 어노테이션은 테스트에서 사용할 설정을 지정해주는 어노테이션이다.
 스프링을 사용하다 보면 같은코드라도 환경,상황마다 다른 설정을 적용해줘야 하는 경우가 있는데
 이때 @Profile,@ActiveProfiles 어노테이션을 사용한다. 빈등록시 메서드위에 
 @Profiles('설정명') 이렇게 어노테이션을 설정마다 적용하고 설정대로 사용할 수 있다
 @ActiveProfiles는 테스트시 어떤 환경을 사용할지 정해주는 어노테이션이라고 한다
-2 : @AutoConfigureMockMvc
+2) @AutoConfigureMockMvc
 디폴트 설정이 서버에서 실행되는게 아닌 테스트환경에서 실행되고 엔드포인트가 있는 테스트를
 진행시엔 MockMvc을 활용해야한다. MockMvc는 가상의 클라이언트로 어플리케이션에 요청을 날리는
 역할을한다. MockMvc를 생성하는 방법에는 여러가지가 있지만 테스트 클래스에 
 @AutoConfigureMockMvc 어노테이션을 지정하고 주입받는것이 간단한 방법이라고 한다.
++ 테스트, @Transactional 동작 원리 추가 예정
